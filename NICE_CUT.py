@@ -605,7 +605,7 @@ class NICE_CUT(object):
         device=self.device
     )
     _, _,  _, _, real_A_z = self.disB(x)
-    self.patch_sampler(self.generator(real_A_z, nce=True))
+    self.patch_sampler(self.gen2B(real_A_z, nce=True))
     self.patch_sampler.load_state_dict(params['patch_sampler'])
     self.start_iter = params['start_iter']
 
