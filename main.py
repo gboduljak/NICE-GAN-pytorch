@@ -1,6 +1,7 @@
 import argparse
 
 from NICE import NICE
+from NICE_CUT import NICE_CUT
 from utils import *
 
 """parsing and configuration"""
@@ -15,6 +16,8 @@ def parse_args():
                       help='[NICE-GAN full version / NICE-GAN light version]')
   parser.add_argument('--dataset', type=str,
                       default='YOUR_DATASET_NAME', help='dataset_name')
+  parser.add_argument('--cut', type=str2bool, default=False,
+                      help='[CUT or NOT CUT]')
   parser.add_argument('--ckpt',
                       type=str,
                       default=None,
@@ -67,6 +70,52 @@ def parse_args():
   parser.add_argument('--n_downsampling', type=int, default=2,
                       help='The number of downsampling')
 
+  parser.add_argument('--nce_weight', type=float, default=1.0,
+                      help='weight for NCE loss: NCE(G(X), X)')
+  parser.add_argument(
+      '--nce_idt',
+      type=str2bool,
+      nargs='?',
+      const=True,
+      default=False,
+      help='use NCE loss for identity mapping: NCE(G(Y), Y))'
+  )
+  parser.add_argument(
+      '--nce_temperature',
+      type=float,
+      default=0.07,
+      help='temperature for NCE loss'
+  )
+  parser.add_argument(
+      '--nce_patch_embedding_dim',
+      type=int,
+      default=256
+  )
+  parser.add_argument(
+      '--nce_n_patches',
+      type=int,
+      default=256,
+      help='number of patches per layer'
+  )
+  parser.add_argument(
+      '--nce_layers',
+      type=str,
+      default='0,2,3,4,8',
+      help='layers contributing to NCE'
+  )
+
+  # full CUT
+  # parser.set_defaults(nce_idt=True, nce_weight=1.0)
+
+  # default for U-GAT-IT-CUT
+  parser.set_defaults(
+      lr=0.0001
+  )
+  parser.set_defaults(
+      nce_idt=True,
+      nce_layers='0,2,5',
+      nce_weight=10.0
+  )
   return check_args(parser.parse_args())
 
 
@@ -104,7 +153,10 @@ def main():
     exit()
 
   # open session
-  gan = NICE(args)
+  if args.cut:
+    gan = NICE_CUT(args)
+  else:
+    gan = NICE(args)
 
   # build graph
   gan.build_model()
