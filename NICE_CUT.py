@@ -308,7 +308,6 @@ class NICE_CUT(object):
 
     for step in range(self.start_iter, self.iteration + 1):
       self.step = step
-      print(step)
 
       if self.decay_flag and step > (self.iteration // 2):
         self.G_optim.param_groups[0]['lr'] -= (self.lr / (self.iteration // 2))
